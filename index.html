@@ -73,7 +73,7 @@
 </head>
 <body>
     <form>
-        <label for="Collegename">College Name,City:</label>
+        <label for="Collegename">College Name,City,State:</label>
         <input type="text" id="Collegename" name="Collegename" required><br><br>
 
         <label for="city">City:</label>
@@ -194,9 +194,9 @@
          <option value="M.Phil">M.Phil</option>
          <option value="MA">MA</option>
          <option value="Management">Management</option>
-         <option value="MBA College">MBA College</option>
+         <option value="MBA">MBA</option>
          <option value="MBBS">MBBS</option>
-         <option value="MCA College">MCA College</option>
+         <option value="MCA">MCA</option>
          <option value="MD">MD</option>
          <option value="MDS">MDS</option>
          <option value="ME">ME</option>
@@ -206,7 +206,7 @@
          <option value="MSc (Nursing)">MSc (Nursing)</option>
          <option value="MSc Agriculture">MSc Agriculture</option>
          <option value="MSc Microbiology">MSc Microbiology</option>
-         <option value="MTech College">MTech College</option>
+         <option value="MTech">MTech</option>
          <option value="NIT">NIT</option>
          <option value="PG MBBS">PG MBBS</option>
          <option value="PGDM">PGDM</option>
@@ -252,7 +252,7 @@
 
     <h3>Courses</h3>
     <input type="text" id="courseName" placeholder="Course Name">
-    <input type="number" id="courseFee" placeholder="Course Fee">
+    <input type="text" id="courseFee" placeholder="Course Fee">
     <button type="button" onclick="addCourse()">Add Course</button>
 
     <table id="courseTable">
@@ -269,73 +269,88 @@
 
     <script>
 
-const corsProxy = 'https://cors-anywhere.herokuapp.com/';
-const username = 'Digbijaya'; // Replace with your WordPress username
-const password = 'AfN&48slFR4Lwr8rTfM)te&8'; // Replace with your WordPress application password
-const credentials = btoa(`${username}:${password}`);
-
-async function getOrCreateTag(tagName) {
-    const url = `${corsProxy}https://xplorefuture.com/wp-json/wp/v2/tags?search=${tagName}`;
-
-    try {
-        const getResponse = await fetch(url, {
-            headers: {
-                'Authorization': `Basic ${credentials}`
+        async function getSelectedValues() {
+            var select = document.getElementById('courseav');
+            var selectedValues = [];
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].selected) {
+                    selectedValues.push(select.options[i].value);
+                }
             }
-        });
-        const getTags = await getResponse.json();
-        if (getTags.length > 0) {
-            return getTags[0].id;
+            document.getElementById('avcourse').value = selectedValues.join(', ');
+        }
+        async function getOrCreateTag(tagName) {
+            const url = 'https://xplorefuture.com/wp-json/wp/v2/tags';
+            const username = 'Omm1'; // Replace with your WordPress username
+            const password = 'pdb@L@knFco!%J^z^(LMbmJZ'; // Replace with your WordPress application password
+            const credentials = btoa(`${username}:${password}`);
+
+            try {
+                // Try to get the tag
+                const getResponse = await fetch(`${url}?search=${tagName}`, {
+                    headers: {
+                        'Authorization': `Basic ${credentials}`
+                    }
+                });
+                const getTags = await getResponse.json();
+                if (getTags.length > 0) {
+                    return getTags[0].id;
+                }
+
+                // If the tag doesn't exist, create it
+                const postResponse = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Basic ${credentials}`
+                    },
+                    body: JSON.stringify({ name: tagName })
+                });
+                const newTag = await postResponse.json();
+                return newTag.id;
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
 
-        const postUrl = `${corsProxy}https://xplorefuture.com/wp-json/wp/v2/tags`;
-        const postResponse = await fetch(postUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Basic ${credentials}`
-            },
-            body: JSON.stringify({ name: tagName })
-        });
-        const newTag = await postResponse.json();
-        return newTag.id;
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
+         async function getOrCreateCategory(categoryName) {
+            const url = 'https://xplorefuture.com/wp-json/wp/v2/categories';
+            const username = 'Digbijaya'; // Replace with your WordPress username
+            const password = 'AfN&48slFR4Lwr8rTfM)te&8'; // Replace with your WordPress application password
+            const credentials = btoa(`${username}:${password}`);
 
-async function getOrCreateCategory(categoryName) {
-    const url = `${corsProxy}https://xplorefuture.com/wp-json/wp/v2/categories?search=${categoryName}`;
+            try {
+                // Try to get the category
+                const getResponse = await fetch(`${url}?search=${categoryName}`, {
+                    headers: {
+                        'Authorization': `Basic ${credentials}`
+                    }
+                });
+                const getCategories = await getResponse.json();
+                if (getCategories.length > 0) {
+                    return getCategories[0].id;
+                }
 
-    try {
-        const getResponse = await fetch(url, {
-            headers: {
-                'Authorization': `Basic ${credentials}`
+                // If the category doesn't exist, create it
+                const postResponse = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Basic ${credentials}`
+                    },
+                    body: JSON.stringify({ name: categoryName })
+                });
+                const newCategory = await postResponse.json();
+                return newCategory.id;
+            } catch (error) {
+                console.error('Error:', error);
             }
-        });
-        const getCategories = await getResponse.json();
-        if (getCategories.length > 0) {
-            return getCategories[0].id;
         }
-
-        const postUrl = `${corsProxy}https://xplorefuture.com/wp-json/wp/v2/categories`;
-        const postResponse = await fetch(postUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Basic ${credentials}`
-            },
-            body: JSON.stringify({ name: categoryName })
-        });
-        const newCategory = await postResponse.json();
-        return newCategory.id;
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-async function sendPostToWordpress(title, content, excerpt, tags, categories) {
-    const url = `${corsProxy}https://xplorefuture.com/wp-json/wp/v2/posts`;
+        async function sendPostToWordpress(title, content, excerpt, tags, categories) {
+            const url = 'https://xplorefuture.com/wp-json/wp/v2/posts';
+            const username = ''; // Replace with your WordPress username
+            const password = 'pdb@L@knFco!%J^z^(LMbmJZ'; // Replace with your WordPress application password
+            const credentials = btoa(`${username}:${password}`);
 
     try {
         const response = await fetch(url, {
@@ -347,7 +362,7 @@ async function sendPostToWordpress(title, content, excerpt, tags, categories) {
             body: JSON.stringify({
                 title: title,
                 content: content,
-                excerpt: excerpt,
+                excerpt: excerpt, // Include the excerpt here
                 status: 'publish',
                 tags: tags,
                 categories: categories
@@ -360,7 +375,7 @@ async function sendPostToWordpress(title, content, excerpt, tags, categories) {
         } else {
             const postResponse = await response.json();
             console.log('Success:', postResponse);
-            alert("Post submitted successfully.");
+            alert("Post submitted Successfully.")
         }
     } catch (error) {
         console.error('Error:', error);
@@ -391,7 +406,7 @@ async function sendPostToWordpress(title, content, excerpt, tags, categories) {
 
 
             // Constructing the paragraph with headings
-            let paragraph = `<h3>Info</h3><p>${Collegename},${state} established in year ${established}.It is a reputed institute and offers various ${Courseoffered} courses in full-time mode.${Collegename} is a ${Typeofcollege} ${appaff} by ${appaffby}.</p>`;
+            let paragraph = `<h3>Info</h3><p>${Collegename} established in year ${established}.It is a reputed institute and offers various ${Courseoffered} courses in full-time mode.${Collegename} is a ${Typeofcollege} ${appaff} by ${appaffby}.</p>`;
             paragraph += ` Some of the most popular courses offered at the institute are ${avcourse} etc. Admission to the college is done by ${Entranceexam}.</p>`;
             paragraph += `<table>
         <tr><th>Type of College</th><td>${Typeofcollege}</td></tr>
@@ -405,7 +420,7 @@ async function sendPostToWordpress(title, content, excerpt, tags, categories) {
             let courseTable = document.getElementById('courseTable').getElementsByTagName('tbody')[0];
             for (let i = 0; i < courseTable.rows.length; i++) {
                 let cells = courseTable.rows[i].cells;
-                paragraph += `<tr><td>${cells[0].innerText}</td><td>${cells[1].innerText}</td></tr>`;
+                paragraph += `<tr><td>${cells[0].innerText}</td><td>₹${cells[1].innerText}</td></tr>`;
             }
             paragraph += `</table>`;
              // Conditional placement section
@@ -445,18 +460,10 @@ sendPostToWordpress(Collegename,paragraph,excerpt, tags, categories);
 
 // Clear the course table
 document.getElementById('courseTable').getElementsByTagName('tbody')[0].innerHTML = '';
-
-
         function addCourse() {
             // Get input values
             var courseName = document.getElementById("courseName").value;
             var courseFee = parseFloat(document.getElementById("courseFee").value);
-
-            // Validate input
-            if (courseName.trim() === "" || isNaN(courseFee) || courseFee <= 0) {
-                alert("Please enter valid course name and fee.");
-                return;
-            }
 
             // Create new row in the table
             var table = document.getElementById("courseTable").getElementsByTagName('tbody')[0];
@@ -466,7 +473,7 @@ document.getElementById('courseTable').getElementsByTagName('tbody')[0].innerHTM
 
             // Add data to cells
             cell1.textContent = courseName;
-            cell2.textContent = courseFee.toFixed(2); // Display fee with 2 decimal places
+            cell2.textContent = courseFee; 
 
             // Clear input fields
             document.getElementById("courseName").value = "";
